@@ -1,0 +1,6 @@
+.rotated-div {
+    width: 200px;
+    height: 200px;
+    transform: rotate(45deg);
+    margin: 100px auto;
+}

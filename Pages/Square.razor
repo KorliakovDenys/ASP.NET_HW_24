@@ -1,0 +1,17 @@
+@using System.Drawing
+
+<button style="background-color: @Color.ToKnownColor(); height: 100px; width: 100px;"
+        class="btn btn-outline-dark" @onclick="args => Handler(Color, args)">
+</button>
+
+@code {
+
+    public delegate void OnColorClick(Color color, MouseEventArgs args);
+
+    [Parameter]
+    public required Color Color { get; set; }
+
+    [Parameter]
+    public required OnColorClick Handler { get; set; }
+
+}

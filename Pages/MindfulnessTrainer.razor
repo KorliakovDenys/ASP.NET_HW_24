@@ -1,0 +1,104 @@
+@page "/Mindfulness_Trainer"
+@using System.Drawing
+@using System.Timers
+<h3>Mindfulness Trainer</h3>
+
+<div class="align-content-center">
+    @if (_timerActive) {
+        <p class="d-block text-xxl-center">Remaining seconds: @_remainingSeconds</p>
+        <button class="btn btn-outline-danger oi oi-media-stop" @onclick="StopTimer">Stop</button>
+    }
+    else {
+        <button class="btn btn-outline-primary oi oi-play-circle" @onclick="StartTimer">Start</button>
+    }
+    <h4 class="d-block text-xl-center" style="color: @_color.ToKnownColor()">@_color.Name</h4>
+    <div class="d-grid rotated-div" disabled="@_disabled">
+        @{
+            var halfOfLength = Colors.Length / 2;
+            <div>
+                @for (var i = 0; i < halfOfLength; i++) {
+                    var color = Colors[i];
+                    <Square Color="color" Handler="OnColorClick"></Square>
+                }
+            </div>
+            <div>
+                @for (var i = halfOfLength; i < Colors.Length; i++) {
+                    var color = Colors[i];
+                    <Square Color="color" Handler="OnColorClick"></Square>
+                }
+            </div>
+        }
+    </div>
+    <div>
+        <h5 class="d-inline-block">Result: @_counter</h5>
+    </div>
+    <div>
+        <button class="btn btn-outline-primary oi oi-reload" @onclick="OnRestartClick">Restart</button>
+    </div>
+</div>
+
+@code {
+
+    private static readonly Random Random = new();
+
+    private static readonly Color[] Colors = {
+        Color.Red,
+        Color.Green,
+        Color.Blue,
+        Color.Yellow
+    };
+
+    private Timer? _timer;
+
+    private Color _color = Colors[Random.Next(Colors.Length)];
+
+    private int _remainingSeconds;
+
+    private int _counter;
+
+    private bool _disabled = true;
+
+    private bool _timerActive;
+
+    private void OnColorClick(Color color, MouseEventArgs args) {
+        if (_color.Equals(color)) _counter++;
+        _color = Colors[Random.Next(Colors.Length)];
+    }
+
+    private void OnRestartClick() {
+        StopTimer();
+        StartTimer();
+    }
+
+    private void StartTimer() {
+        _remainingSeconds = 10;
+        _color = Colors[Random.Next(Colors.Length)];
+        _counter = 0;
+        _timerActive = true;
+        _timer = new Timer(1000);
+        _timer.Elapsed += TimerOnElapsed;
+        _disabled = false;
+        _timer.Start();
+    }
+
+    private void TimerOnElapsed(object? sender, ElapsedEventArgs e) {
+        if (_remainingSeconds > 0) {
+            _remainingSeconds--;
+        }
+        else {
+            StopTimer();
+        }
+        UpdateState();
+    }
+
+    private void StopTimer() {
+        _disabled = true;
+        _timerActive = false;
+        _timer?.Stop();
+        _timer?.Dispose();
+    }
+
+    private async Task UpdateState() {
+        await InvokeAsync(StateHasChanged);
+    }
+}
